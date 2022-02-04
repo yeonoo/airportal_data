@@ -22,18 +22,12 @@ select.select_by_visible_text("제주")
 select.select_by_value("RKPC")
 
 # 날짜 지정
-from selenium.webdriver.common.keys import Keys
-driver.find_element_by_name('current_dt_from').clear()
-driver.find_element_by_name('current_dt_from').send_keys("20220201")
-clk = '//*[@id="titleArea"]/h1'
-driver.find_element_by_xpath(clk).click()
-driver.find_element_by_name('current_dt_from').clear()
-driver.find_element_by_name('current_dt_from').send_keys("20220201")
-clk = '//*[@id="titleArea"]/h1'
-driver.find_element_by_xpath(clk).click()
-
-driver.find_element_by_name('current_dt_to').clear()
-driver.find_element_by_name('current_dt_to').send_keys("20220201")
+# 날짜 지정
+from selenium.webdriver.common.by import By
+# driver.findElement(By.name("current_dt_from")).sendKeys("value", "20220201")
+# driver.findElement(By.name("current_dt_to")).sendKeys("value", "20220201")
+driver.find_element_by_id(("dateStart")).send_keys("value", "20220201")
+driver.find_element(By.id("dateEnd")).send_keys("value", "20220201")
 
 # 데이터
 
