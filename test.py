@@ -42,21 +42,16 @@ driver.find_element_by_name('current_dt_to').send_keys(Keys.ENTER)
 searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
 driver.find_element_by_xpath(searchData).click()
 
-# 데이터 추출
+# 데이터 추출하기
+import pandas as pd
 data_tbody = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody')
-data_tr = data_tbody.find_elements_by_tag_name('tr')
+data_tr = data_tbody.find_elements_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[2]')
+print(data_tr)
 for td in data_tr:
-    data_row = td.text
-    data_row_list = data_row.split('\n')
-    print(data_row_list)
+    print(td.text)
+    data_td = [td.text]
+    print(data_td)
 
-import _csv
-def crawl():
-    column_list = ["출발지", "도착지", "항공사", "운항출발", "운항도착", "운항계", "여객출발", "여객도착", "여객계", "화물출발", "화물도착", "화물계"]
-    w =
-"""
-1. xpath로 티바디 접근
-2. xpath로 티알 접근
-3. 2로 td 접근
-4. td를 리스트 형태로 저장
-"""
+# 추출한 데이터 엑셀에 저장하기
+    dataFrame = pd.DataFrame.from_records(data_td)
+    dataFrame.to_excel('Test.xlsx')
