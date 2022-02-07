@@ -42,16 +42,36 @@ driver.find_element_by_name('current_dt_to').send_keys(Keys.ENTER)
 searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
 driver.find_element_by_xpath(searchData).click()
 
-# 데이터 추출하기
+## 데이터 추출하기
 import pandas as pd
-data_tbody = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody')
-data_tr = data_tbody.find_elements_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[2]')
-print(data_tr)
-for td in data_tr:
-    print(td.text)
-    data_td = [td.text]
-    print(data_td)
+from selenium.common.exceptions import NoSuchElementException
 
-# 추출한 데이터 엑셀에 저장하기
-    dataFrame = pd.DataFrame.from_records(data_td)
-    dataFrame.to_excel('Test.xlsx')
+# 기본 지정
+data_list = []
+data_tbody = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody')
+tr_num = 2
+
+# 행이 존재하는지 확인하는 함수
+def check(xpath):
+    try:
+        driver.find_element_by_xpath(xpath)
+    except NoSuchElementException:
+        return False
+    return True
+
+# 조건문 시작
+while True:
+    tr_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[' + str(tr_num) + ']'
+    data_tr = data_tbody.find_element_by_xpath(tr_xpath)
+    if check(tr_xpath):
+        for i in range(3, 15, 1):
+            td_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[' + str(tr_num) + ']/td['+str(i)+']'
+            data_td = data_tr.find_element_by_xpath(td_xpath)
+            data = data_td.text
+            print(data)
+        tr_num = tr_num + 1
+    else:
+        break
+
+
+
