@@ -58,11 +58,21 @@ for single_date in dateRange(st_date, end_date):
     driver.find_element_by_xpath(searchData).click()
 """
 
-# 임시 날짜 설정
-d = '20210213'
-dateSet('current_dt_from', d)
-dateSet('current_dt_to', d)
+# 임시 날짜 설정 - 데이터 출력 완료시 이 부분 삭제하고 윗부분 살릴 것
+date = '20210213'
+dateSet('current_dt_from', date)
+dateSet('current_dt_to', date)
+searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
+driver.find_element_by_xpath(searchData).click()
 
+# 데이터 추출
+table = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody')
+tr_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[2]'
+data_tr = table.find_element_by_xpath(tr_xpath)
+td = data_tr.find_elements_by_tag_name('td')
+data_td = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[2]')
+
+print(len(td))
 
 
 
