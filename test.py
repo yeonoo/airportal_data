@@ -79,20 +79,59 @@ tbody_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody'
 trSum_xpath = '//*[@id="mySheet-table"]/tbody/tr[2]/td[1]/div/table/tbody/tr[4]'
 tbody = driver.find_element_by_xpath(tbody_xpath)
 
-td_xpath = tr_xpath + 'td[' + str(i) + ']'
-tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
-tdDep_xpath = tr_xpath + '/td[3]'
-tdArv_xpath = tr_xpath + '/td[4]'
-
-# tr 길이 알아내기
+#tr 길이 알아내기
 i = 2
 tr_count = 0
 while True:
     tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
     if check(tr_xpath) != 0:
-        print('ok')
         tr_count += 1
         i += 1
     else:
         print(tr_count)
         break
+
+
+for i in range(2, tr_count, 1):
+    tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+    data_tr = driver.find_element_by_xpath(tr_xpath)
+    td_14_xpath = tr_xpath + '/td[14]'
+
+    # 데이터 추출
+    if check(td_14_xpath) != 0:
+        # 노선 넣기
+        tdDep_xpath = tr_xpath + '/td[3]'
+        td_dep = data_tr.find_element_by_xpath(tdDep_xpath)
+        dep = td_dep.text
+        tdArv_xpath = tr_xpath + '/td[4]'
+        td_arv = data_tr.find_element_by_xpath(tdArv_xpath)
+        arv = td_arv.text
+        data_list = [dep, arv]
+        for m in range(5, 15, 1):
+            td_xpath = tr_xpath + '/td[' + str(m) + ']'
+            data_td = data_tr.find_element_by_xpath(td_xpath)
+            data = data_td.text
+            data_list.append(data)
+            print(data_list)
+    else:
+        # 노선 넣기
+        data_list = [dep, arv]
+        for n in range(2, 12, 1):
+            #데이터 추가
+            td_xpath = tr_xpath + '/td[' + str(n) + ']'
+            data_td = data_tr.find_element_by_xpath(td_xpath)
+            data = data_td.text
+            data_list.append(data)
+            print(data_list)
+
+
+
+
+
+
+
+tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+td_xpath = tr_xpath + 'td[' + str(i) + ']'
+tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+tdDep_xpath = tr_xpath + '/td[3]'
+tdArv_xpath = tr_xpath + '/td[4]'
