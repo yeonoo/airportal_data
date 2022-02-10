@@ -66,13 +66,33 @@ searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
 driver.find_element_by_xpath(searchData).click()
 
 # 데이터 추출
-table = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody')
-tr_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[2]'
-data_tr = table.find_element_by_xpath(tr_xpath)
-td = data_tr.find_elements_by_tag_name('td')
-data_td = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody/tr[2]')
+# 행이 존재하는지 확인하는 함수
+from selenium.common.exceptions import NoSuchElementException
+def check(xpath):
+    try:
+        driver.find_element_by_xpath(xpath)
+    except NoSuchElementException:
+        return False
+    return True
 
-print(len(td))
+tbody_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody'
+trSum_xpath = '//*[@id="mySheet-table"]/tbody/tr[2]/td[1]/div/table/tbody/tr[4]'
+tbody = driver.find_element_by_xpath(tbody_xpath)
 
+td_xpath = tr_xpath + 'td[' + str(i) + ']'
+tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+tdDep_xpath = tr_xpath + '/td[3]'
+tdArv_xpath = tr_xpath + '/td[4]'
 
-
+# tr 길이 알아내기
+i = 2
+tr_count = 0
+while True:
+    tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+    if check(tr_xpath) != 0:
+        print('ok')
+        tr_count += 1
+        i += 1
+    else:
+        print(tr_count)
+        break
