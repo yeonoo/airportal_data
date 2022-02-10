@@ -21,6 +21,7 @@ driver.get(url_realtime)
 
 # 2. 제주 노선 설정
 from selenium.webdriver.support.select import Select
+
 selectRoute = Select(driver.find_element_by_name('seah_ad'))
 selectRoute.select_by_visible_text('제주')
 
@@ -29,12 +30,12 @@ selectRoute.select_by_visible_text('제주')
 from datetime import date, timedelta
 import time
 
-#기간 설정 함수
+# 기간 설정 함수
 def dateRange(st_date, end_date):
-   for n in range(int((end_date - st_date).days)):
-       yield st_date + timedelta(n)
+    for n in range(int((end_date - st_date).days)):
+        yield st_date + timedelta(n)
 
-#날짜 검색 함수
+# 날짜 검색 함수
 def dateSet(className, d):
     from selenium.webdriver.common.keys import Keys
     driver.find_element_by_name(className).clear()
@@ -43,6 +44,7 @@ def dateSet(className, d):
     driver.find_element_by_name(className).send_keys(Keys.CONTROL + 'A')
     driver.find_element_by_name(className).send_keys(str(d))
     driver.find_element_by_name(className).send_keys(Keys.ENTER)
+
 
 """ 데이터 출력 전까지 주석 처리할 것
 #시작일(st_date), 종료일(end_date) 입력
@@ -75,11 +77,17 @@ def check(xpath):
         return False
     return True
 
+def scroll(i):
+    scroll_tbody = driver.find_element_by_xpath('//*[@id="mySheet-table"]/tbody')
+    itemlist = scroll_tbody.find_element_by_xpath('//*[@id="mySheet-table"]/tbody/tr[2]/td[2]/div/div')
+    driver.execute_script("arguments[0].scrollBy(0,"+str(i)+")", itemlist)
+
+
 tbody_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody'
 trSum_xpath = '//*[@id="mySheet-table"]/tbody/tr[2]/td[1]/div/table/tbody/tr[4]'
 tbody = driver.find_element_by_xpath(tbody_xpath)
 
-#tr 길이 알아내기
+# tr 길이 알아내기
 i = 2
 tr_count = 0
 while True:
@@ -89,8 +97,8 @@ while True:
         i += 1
     else:
         print(tr_count)
+        tr_count += 2
         break
-
 
 for i in range(2, tr_count, 1):
     tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
@@ -112,26 +120,17 @@ for i in range(2, tr_count, 1):
             data_td = data_tr.find_element_by_xpath(td_xpath)
             data = data_td.text
             data_list.append(data)
-            print(data_list)
+        print(data_list)
+        scroll(30)
+
     else:
         # 노선 넣기
         data_list = [dep, arv]
         for n in range(2, 12, 1):
-            #데이터 추가
+            # 데이터 추가
             td_xpath = tr_xpath + '/td[' + str(n) + ']'
             data_td = data_tr.find_element_by_xpath(td_xpath)
             data = data_td.text
             data_list.append(data)
-            print(data_list)
-
-
-
-
-
-
-
-tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
-td_xpath = tr_xpath + 'td[' + str(i) + ']'
-tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
-tdDep_xpath = tr_xpath + '/td[3]'
-tdArv_xpath = tr_xpath + '/td[4]'
+        print(data_list)
+        scroll(30)
