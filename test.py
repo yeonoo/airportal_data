@@ -45,28 +45,6 @@ def dateSet(className, d):
     driver.find_element_by_name(className).send_keys(str(d))
     driver.find_element_by_name(className).send_keys(Keys.ENTER)
 
-
-""" 데이터 출력 전까지 주석 처리할 것
-#시작일(st_date), 종료일(end_date) 입력
-st_date = date(2021, 2, 1)
-end_date = date(2021, 2, 5) #일자+1로 입력해야 함. 예: 2021년 2월 4일까지의 데이터가 필요하다면 2021, 2, 5로 입력할 것
-
-# 반복
-for single_date in dateRange(st_date, end_date):
-    d = single_date.strftime("%Y%m%d")
-    dateSet('current_dt_from', d)
-    dateSet('current_dt_to', d)
-    searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
-    driver.find_element_by_xpath(searchData).click()
-"""
-
-# 임시 날짜 설정 - 데이터 출력 완료시 이 부분 삭제하고 윗부분 살릴 것
-date = '20210213'
-dateSet('current_dt_from', date)
-dateSet('current_dt_to', date)
-searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
-driver.find_element_by_xpath(searchData).click()
-
 # 데이터 추출
 # 행이 존재하는지 확인하는 함수
 from selenium.common.exceptions import NoSuchElementException
@@ -83,54 +61,97 @@ def scroll(i):
     driver.execute_script("arguments[0].scrollBy(0,"+str(i)+")", itemlist)
 
 
+# csv파일 생성
+import csv
+f = open('airportalData.csv', 'a', newline='')
+wr = csv.writer(f)
+
+#시작일(st_date), 종료일(end_date) 입력
+st_date = date(2020, 12, 30)
+end_date = date(2021, 1, 3)
+
 tbody_xpath = '//*[@id="mySheet-table"]/tbody/tr[3]/td/div/div[1]/table/tbody'
 trSum_xpath = '//*[@id="mySheet-table"]/tbody/tr[2]/td[1]/div/table/tbody/tr[4]'
 tbody = driver.find_element_by_xpath(tbody_xpath)
 
 # tr 길이 알아내기
-i = 2
-tr_count = 0
-while True:
-    tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
-    if check(tr_xpath) != 0:
-        tr_count += 1
-        i += 1
-    else:
-        print(tr_count)
-        tr_count += 2
-        break
+def trLen():
+    i = 2
+    tr_count = 0
+    while True:
+        tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+        if check(tr_xpath) != 0:
+            tr_count += 1
+            i += 1
+        else:
+            print(str(tr_count) + '개의 데이터')
+            tr_count += 2
+            break
+    return tr_count
 
-for i in range(2, tr_count, 1):
-    tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
-    data_tr = driver.find_element_by_xpath(tr_xpath)
-    td_14_xpath = tr_xpath + '/td[14]'
+def dataSum():
+    dataSum_xpath = '//*[@id="mySheet-table"]/tbody/tr[2]/td[1]/div/table/tbody/tr[4]'
+    dataSum_tr = driver.find_element_by_xpath(dataSum_xpath)
+    dataSum_list = [date, '', '']
+    # 데이터 추가
+    for t in range(5, 15, 1):
+        sumTd_xpath = dataSum_xpath + '/td[' + str(t) + ']'
+        sumTd = driver.find_element_by_xpath(sumTd_xpath)
+        dataSum = sumTd.text
+        dataSum_list.append(dataSum)
+    wr.writerow(dataSum_list)
+    print('합계 저장 완료')
 
-    # 데이터 추출
-    if check(td_14_xpath) != 0:
-        # 노선 넣기
-        tdDep_xpath = tr_xpath + '/td[3]'
-        td_dep = data_tr.find_element_by_xpath(tdDep_xpath)
-        dep = td_dep.text
-        tdArv_xpath = tr_xpath + '/td[4]'
-        td_arv = data_tr.find_element_by_xpath(tdArv_xpath)
-        arv = td_arv.text
-        data_list = [dep, arv]
-        for m in range(5, 15, 1):
-            td_xpath = tr_xpath + '/td[' + str(m) + ']'
-            data_td = data_tr.find_element_by_xpath(td_xpath)
-            data = data_td.text
-            data_list.append(data)
-        print(data_list)
-        scroll(30)
+# 반복
+# 날짜검색-합계행저장-데이터행갯수검색-데이터행저장 순으로 반복하는 구조
+for single_date in dateRange(st_date, end_date):
+    date = single_date.strftime("%Y%m%d")
+    dateSet('current_dt_from', date)
+    dateSet('current_dt_to', date)
+    print(date + ' 검색합니다.')
+    searchData = '//*[@id="realContents"]/div/div[2]/div[1]/div[1]/a[2]'
+    driver.find_element_by_xpath(searchData).click()
 
-    else:
-        # 노선 넣기
-        data_list = [dep, arv]
-        for n in range(2, 12, 1):
+    # 합계 행 저장
+    dataSum()
+
+    # 데이터 행 갯수 검색 및 설정
+    tr_ct = trLen()
+
+    # 데이터행 저장
+    for i in range(2, tr_ct, 1):
+        tr_xpath = tbody_xpath + '/tr[' + str(i) + ']'
+        data_tr = driver.find_element_by_xpath(tr_xpath)
+        td_14_xpath = tr_xpath + '/td[14]'
+
+        # 데이터 추출
+        if check(td_14_xpath) != 0:
+            # 노선 넣기
+            tdDep_xpath = tr_xpath + '/td[3]'
+            td_dep = data_tr.find_element_by_xpath(tdDep_xpath)
+            dep = td_dep.text
+            tdArv_xpath = tr_xpath + '/td[4]'
+            td_arv = data_tr.find_element_by_xpath(tdArv_xpath)
+            arv = td_arv.text
+            data_list = [date, dep, arv]
             # 데이터 추가
-            td_xpath = tr_xpath + '/td[' + str(n) + ']'
-            data_td = data_tr.find_element_by_xpath(td_xpath)
-            data = data_td.text
-            data_list.append(data)
-        print(data_list)
-        scroll(30)
+            for m in range(5, 15, 1):
+                td_xpath = tr_xpath + '/td[' + str(m) + ']'
+                data_td = data_tr.find_element_by_xpath(td_xpath)
+                data = data_td.text
+                data_list.append(data)
+            wr.writerow(data_list)
+            scroll(30)
+        else:
+            # 노선 넣기
+            data_list = [date, dep, arv]
+            # 데이터 추가
+            for n in range(2, 12, 1):
+                td_xpath = tr_xpath + '/td[' + str(n) + ']'
+                data_td = data_tr.find_element_by_xpath(td_xpath)
+                data = data_td.text
+                data_list.append(data)
+            wr.writerow(data_list)
+            scroll(30)
+    print('저장 완료')
+
